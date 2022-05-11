@@ -16,18 +16,17 @@ import {
     VStack,
     Box,
     Button,
-    View,
     FlatList,
     Image,
-    Container,
-    Divider,
+    Divider, ScrollView,
 } from "native-base";
-import {TouchableOpacity} from "react-native";
+import {ImageBackground, TouchableOpacity} from "react-native";
 
 const ThemeContext = React.createContext();
 const Tab = createBottomTabNavigator();
 
 // SCREENS
+// Афиша
 function PosterScreen({navigation}) {
     const [films, setFilms] = useState([]);
     const Stack = createNativeStackNavigator();
@@ -45,10 +44,10 @@ function PosterScreen({navigation}) {
             )
     }, [])
 
-    function Film({title, image}) {
+    function Film({film_id, title, image}) {
         return (
             <Box textAlign="center" marginRight={6} width={260}>
-                <TouchableOpacity onPress={() => navigation.navigate('Film')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Film', {film_id: film_id})}>
                     <Image source={{uri: image}} alt="Обложка не доступна" height={260} rounded={"md"}/>
                 </TouchableOpacity>
                 <Heading fontSize={"lg"} marginTop={2}>{title}</Heading>
@@ -60,41 +59,43 @@ function PosterScreen({navigation}) {
         <Stack.Navigator>
             <Tab.Screen name="Main" options={{headerShown: false}} component={() => {
                 return (
-                    <VStack space={7} paddingX={6} paddingY={4}>
-                        <Box width="100%">
-                            <Heading>Премьеры</Heading>
-                            <Divider my="4"/>
-                            <FlatList
-                                data={films}
-                                marginTop={1}
-                                horizontal={true}
-                                renderItem={({item}) => (<Film title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                keyExtractor={item => item.kinopoiskId.toString()}
-                            />
-                        </Box>
-                        <Box width="100%">
-                            <Heading>Пушкинская карта</Heading>
-                            <Divider my="4"/>
-                            <FlatList
-                                data={films.filter(film => film.countries.find(el => el.country === "Россия")).slice(5, 10)}
-                                marginTop={1}
-                                horizontal={true}
-                                renderItem={({item}) => (<Film title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                keyExtractor={item => item.kinopoiskId.toString()}
-                            />
-                        </Box>
-                        <Box width="100%">
-                            <Heading>Детям</Heading>
-                            <Divider my="4"/>
-                            <FlatList
-                                data={films.filter(film => film.genres.find(el => el.genre === "мультфильм"))}
-                                marginTop={1}
-                                horizontal={true}
-                                renderItem={({item}) => (<Film title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                keyExtractor={item => item.kinopoiskId.toString()}
-                            />
-                        </Box>
-                    </VStack>
+                    <ScrollView>
+                        <VStack space={7} paddingX={6} paddingY={4}>
+                            <Box width="100%">
+                                <Heading>Премьеры</Heading>
+                                <Divider my="4"/>
+                                <FlatList
+                                    data={films}
+                                    marginTop={1}
+                                    horizontal={true}
+                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} title={item.nameRu} image={item.posterUrlPreview}/>)}
+                                    keyExtractor={item => item.kinopoiskId.toString()}
+                                />
+                            </Box>
+                            <Box width="100%">
+                                <Heading>Пушкинская карта</Heading>
+                                <Divider my="4"/>
+                                <FlatList
+                                    data={films.filter(film => film.countries.find(el => el.country === "Россия")).slice(5, 10)}
+                                    marginTop={1}
+                                    horizontal={true}
+                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} title={item.nameRu} image={item.posterUrlPreview}/>)}
+                                    keyExtractor={item => item.kinopoiskId.toString()}
+                                />
+                            </Box>
+                            <Box width="100%">
+                                <Heading>Детям</Heading>
+                                <Divider my="4"/>
+                                <FlatList
+                                    data={films.filter(film => film.genres.find(el => el.genre === "мультфильм"))}
+                                    marginTop={1}
+                                    horizontal={true}
+                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} title={item.nameRu} image={item.posterUrlPreview}/>)}
+                                    keyExtractor={item => item.kinopoiskId.toString()}
+                                />
+                            </Box>
+                        </VStack>
+                    </ScrollView>
                 );
             }}/>
             <Tab.Screen name="Film" component={FilmDetailsScreen} options={{headerShown: false}}/>
@@ -102,31 +103,53 @@ function PosterScreen({navigation}) {
     );
 }
 
+// Расписание
 function ScheduleScreen({navigation}) {
     return (
         <Text>Settings!</Text>
     );
 }
 
+// Мои билеты
 function MyTicketsScreen({navigation}) {
     return (
         <ToggleDarkMode/>
     );
 }
 
-function FilmDetailsScreen({navigation}) {
+// Информация о фильме
+function FilmDetailsScreen({route, navigation}) {
+    const [film, setFilm] = useState([]);
+    // Примечание: пустой массив зависимостей [] означает, что этот useEffect будет запущен один раз
+    useEffect(() => {
+        fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id, {
+            headers: new Headers({
+                'X-API-KEY': '2b9134aa-02ff-4744-82d3-5476cf0cc27c'
+            }),
+        })
+            .then(res => res.json())
+            .then(result => setFilm(result))
+    }, [])
     return (
-        <VStack space={2}>
-            <YoutubePlayer
-                height={300}
-                forceAndroidAutoplay={true}
-                videoId={youtube_parser("https://www.youtube.com/watch?v=UhJ_XIxKM2Q")}
-            />
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                <Text>Details Screen</Text>
+        <ScrollView>
+            <Box style={{height: '300px', backgroundColor: 'rgb(0,0,0)'}}>
+                <ImageBackground source={{uri: film.posterUrl}} alt="Обложка не доступна" style={{height: '100%', justifyContent: "flex-end"}} imageStyle={{opacity: 0.6}}>
+                    <Heading style={{textAlign: 'center', color: '#fff', padding: 12}}>{film.nameRu}</Heading>
+                </ImageBackground>
+            </Box>
+            <VStack space={4} padding={3}>
+                <Text textAlign={"center"}>{film.description}</Text>
+                <YoutubePlayer
+                    height={300}
+                    forceAndroidAutoplay={true}
+                    videoId={youtube_parser("https://www.youtube.com/watch?v=UhJ_XIxKM2Q")}
+                />
+            </VStack>
+            <Box style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                <Text></Text>
                 <Button onPress={() => navigation.goBack()}>Назад</Button>
-            </View>
-        </VStack>
+            </Box>
+        </ScrollView>
     );
 }
 
@@ -138,7 +161,7 @@ export default function App() {
         <NativeBaseProvider>
             <ThemeContext.Provider value={{theme, setTheme}}>
                 <NavigationContainer theme={theme}>
-                    <Tab.Navigator screenOptions={{tabBarStyle: {paddingBottom: 10, paddingTop: 10, height: 70}}}>
+                    <Tab.Navigator screenOptions={{tabBarStyle: {paddingBottom: 5, paddingTop: 5, height: 60}}}>
                         <Tab.Screen
                             name="Афиша"
                             component={PosterScreen}
@@ -194,8 +217,8 @@ function ToggleDarkMode() {
     );
 }
 
-function youtube_parser(url){
+function youtube_parser(url) {
     let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     let match = url.match(regExp);
-    return (match && match[7].length==11)? match[7] : false;
+    return (match && match[7].length == 11) ? match[7] : false;
 }
