@@ -1,30 +1,18 @@
 import React, {useEffect, useState} from "react";
-import {NavigationContainer, DefaultTheme, DarkTheme} from '@react-navigation/native';
+import {NavigationContainer, DefaultTheme, DarkTheme, useIsFocused} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {AntDesign, FontAwesome} from '@expo/vector-icons';
+import {FontAwesome} from '@expo/vector-icons';
 import YoutubePlayer from "react-native-youtube-iframe";
-import {
-    Text,
-    Link,
-    Fab,
-    HStack,
-    Center,
-    Heading,
-    Switch,
-    useColorMode,
-    NativeBaseProvider,
-    VStack,
-    Box,
-    Button,
-    FlatList,
-    Image,
-    Divider, ScrollView, Flex, Icon,
-} from "native-base";
+import {Text, Fab, HStack, Heading, Switch, useColorMode, NativeBaseProvider, VStack, Box, Button, FlatList, Image, Divider, ScrollView, Icon} from "native-base";
 import {ImageBackground, TouchableOpacity} from "react-native";
 
 const ThemeContext = React.createContext();
-const Tab = createBottomTabNavigator();
+
+// 2b9134aa-02ff-4744-82d3-5476cf0cc27c
+// 197a2b18-9687-4ac0-a84a-21fc9fed5506
+const API_KEY = '197a2b18-9687-4ac0-a84a-21fc9fed5506';
+
 
 // SCREENS
 // Афиша
@@ -35,9 +23,7 @@ function PosterScreen({navigation}) {
     // Примечание: пустой массив зависимостей [] означает, что этот useEffect будет запущен один раз
     useEffect(() => {
         fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/premieres?year=2022&month=MAY", {
-            headers: new Headers({
-                'X-API-KEY': '2b9134aa-02ff-4744-82d3-5476cf0cc27c'
-            }),
+            headers: new Headers({'X-API-KEY': API_KEY}),
         })
             .then(res => res.json())
             .then(result => setFilms(result.items))
@@ -56,7 +42,7 @@ function PosterScreen({navigation}) {
 
     return (
         <Stack.Navigator>
-            <Tab.Screen name="Main" options={{headerShown: false}} component={() => {
+            <Stack.Screen name="Main" options={{headerShown: false}} component={() => {
                 return (
                     <ScrollView>
                         <VStack space={7} paddingX={6} paddingY={4}>
@@ -119,7 +105,7 @@ function PosterScreen({navigation}) {
                     </ScrollView>
                 );
             }}/>
-            <Tab.Screen name="Film" options={{headerShown: false}} component={FilmDetailsScreen}/>
+            <Stack.Screen name="Film" options={{headerShown: false}} component={FilmDetailsScreen}/>
         </Stack.Navigator>
     );
 }
@@ -147,23 +133,17 @@ function FilmDetailsScreen({route, navigation}) {
     // Примечание: пустой массив зависимостей [] означает, что этот useEffect будет запущен один раз
     useEffect(() => {
         fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id, {
-            headers: new Headers({
-                'X-API-KEY': '2b9134aa-02ff-4744-82d3-5476cf0cc27c'
-            }),
+            headers: new Headers({'X-API-KEY': API_KEY}),
         })
             .then(res => res.json())
             .then(result => setFilm(result))
         fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id + "/videos", {
-            headers: new Headers({
-                'X-API-KEY': '2b9134aa-02ff-4744-82d3-5476cf0cc27c'
-            }),
+            headers: new Headers({'X-API-KEY': API_KEY}),
         })
             .then(res => res.json())
             .then(result => setVideo(result.items.find(el => el.site === "YOUTUBE")))
         fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id + "/images", {
-            headers: new Headers({
-                'X-API-KEY': '2b9134aa-02ff-4744-82d3-5476cf0cc27c'
-            }),
+            headers: new Headers({'X-API-KEY': API_KEY}),
         })
             .then(res => res.json())
             .then(result => setImages(result.items))
@@ -245,13 +225,11 @@ function FilmDetailsScreen({route, navigation}) {
                         renderItem={({item}) => <Poster image={item.imageUrl}/>}
                     />
                 </Box>
-                <Box position="relative" h={80} w="100%">
-                    <Fab position="absolute"
-                         style={{backgroundColor: "rgb(0, 122, 245)", bottom: "70px", left: '50%', transform: "translateX(-50%)"}}
-                         icon={<Icon color="white" as={<FontAwesome name="ticket" />} size="sm"/>}
-                         label="Забронировать"
-                    />
-                </Box>;
+                { useIsFocused() && <Fab position="fixed"
+                     style={{position: "fixed", backgroundColor: "rgb(0, 122, 245)", bottom: "70px", left: '50%', transform: "translateX(-50%)"}}
+                     icon={<Icon color="white" as={<FontAwesome name="ticket"/>} size="sm"/>}
+                     label="Забронировать"
+                /> }
             </VStack>
         </ScrollView>
     )
@@ -260,6 +238,7 @@ function FilmDetailsScreen({route, navigation}) {
 // ROOT
 export default function App() {
     const [theme, setTheme] = useState(DefaultTheme);
+    const Tab = createBottomTabNavigator();
 
     return (
         <NativeBaseProvider>
