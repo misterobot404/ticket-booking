@@ -2,11 +2,12 @@ import React, {useEffect, useState} from "react";
 import {NavigationContainer, DefaultTheme, DarkTheme} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {FontAwesome} from '@expo/vector-icons';
+import {AntDesign, FontAwesome} from '@expo/vector-icons';
 import YoutubePlayer from "react-native-youtube-iframe";
 import {
     Text,
     Link,
+    Fab,
     HStack,
     Center,
     Heading,
@@ -18,7 +19,7 @@ import {
     Button,
     FlatList,
     Image,
-    Divider, ScrollView,
+    Divider, ScrollView, Flex, Icon,
 } from "native-base";
 import {ImageBackground, TouchableOpacity} from "react-native";
 
@@ -28,8 +29,8 @@ const Tab = createBottomTabNavigator();
 // SCREENS
 // Афиша
 function PosterScreen({navigation}) {
-    const [films, setFilms] = useState([]);
     const Stack = createNativeStackNavigator();
+    const [films, setFilms] = useState([]);
 
     // Примечание: пустой массив зависимостей [] означает, что этот useEffect будет запущен один раз
     useEffect(() => {
@@ -39,15 +40,13 @@ function PosterScreen({navigation}) {
             }),
         })
             .then(res => res.json())
-            .then(
-                (result) => setFilms(result.items),
-            )
+            .then(result => setFilms(result.items))
     }, [])
 
-    function Film({film_id, title, image}) {
+    function Film({film_id, title, image, premiere_date}) {
         return (
-            <Box textAlign="center" marginRight={6} width={260}>
-                <TouchableOpacity onPress={() => navigation.navigate('Film', {film_id: film_id})}>
+            <Box textAlign="center" marginRight={4} width={260}>
+                <TouchableOpacity onPress={() => navigation.navigate('Film', {film_id: film_id, premiere_date: premiere_date})}>
                     <Image source={{uri: image}} alt="Обложка не доступна" height={260} rounded={"md"}/>
                 </TouchableOpacity>
                 <Heading fontSize={"lg"} marginTop={2}>{title}</Heading>
@@ -68,7 +67,7 @@ function PosterScreen({navigation}) {
                                     data={films}
                                     marginTop={1}
                                     horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} title={item.nameRu} image={item.posterUrlPreview}/>)}
+                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
                                     keyExtractor={item => item.kinopoiskId.toString()}
                                 />
                             </Box>
@@ -79,7 +78,7 @@ function PosterScreen({navigation}) {
                                     data={films.filter(film => film.countries.find(el => el.country === "Россия")).slice(5, 10)}
                                     marginTop={1}
                                     horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} title={item.nameRu} image={item.posterUrlPreview}/>)}
+                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
                                     keyExtractor={item => item.kinopoiskId.toString()}
                                 />
                             </Box>
@@ -90,7 +89,29 @@ function PosterScreen({navigation}) {
                                     data={films.filter(film => film.genres.find(el => el.genre === "мультфильм"))}
                                     marginTop={1}
                                     horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} title={item.nameRu} image={item.posterUrlPreview}/>)}
+                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
+                                    keyExtractor={item => item.kinopoiskId.toString()}
+                                />
+                            </Box>
+                            <Box width="100%">
+                                <Heading>Ужасы</Heading>
+                                <Divider my="4"/>
+                                <FlatList
+                                    data={films.filter(film => film.genres.find(el => el.genre === "ужасы"))}
+                                    marginTop={1}
+                                    horizontal={true}
+                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
+                                    keyExtractor={item => item.kinopoiskId.toString()}
+                                />
+                            </Box>
+                            <Box width="100%">
+                                <Heading>Комедии</Heading>
+                                <Divider my="4"/>
+                                <FlatList
+                                    data={films.filter(film => film.genres.find(el => el.genre === "комедия"))}
+                                    marginTop={1}
+                                    horizontal={true}
+                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
                                     keyExtractor={item => item.kinopoiskId.toString()}
                                 />
                             </Box>
@@ -98,7 +119,7 @@ function PosterScreen({navigation}) {
                     </ScrollView>
                 );
             }}/>
-            <Tab.Screen name="Film" component={FilmDetailsScreen} options={{headerShown: false}}/>
+            <Tab.Screen name="Film" options={{headerShown: false}} component={FilmDetailsScreen}/>
         </Stack.Navigator>
     );
 }
@@ -120,6 +141,9 @@ function MyTicketsScreen({navigation}) {
 // Информация о фильме
 function FilmDetailsScreen({route, navigation}) {
     const [film, setFilm] = useState([]);
+    const [video, setVideo] = useState([]);
+    const [images, setImages] = useState([]);
+
     // Примечание: пустой массив зависимостей [] означает, что этот useEffect будет запущен один раз
     useEffect(() => {
         fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id, {
@@ -129,7 +153,30 @@ function FilmDetailsScreen({route, navigation}) {
         })
             .then(res => res.json())
             .then(result => setFilm(result))
+        fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id + "/videos", {
+            headers: new Headers({
+                'X-API-KEY': '2b9134aa-02ff-4744-82d3-5476cf0cc27c'
+            }),
+        })
+            .then(res => res.json())
+            .then(result => setVideo(result.items.find(el => el.site === "YOUTUBE")))
+        fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id + "/images", {
+            headers: new Headers({
+                'X-API-KEY': '2b9134aa-02ff-4744-82d3-5476cf0cc27c'
+            }),
+        })
+            .then(res => res.json())
+            .then(result => setImages(result.items))
     }, [])
+
+    function Poster({image}) {
+        return (
+            <Box marginRight={3} width={180}>
+                <Image source={{uri: image}} alt="Обложка не доступна" height={180} rounded={"md"}/>
+            </Box>
+        );
+    }
+
     return (
         <ScrollView>
             <Box style={{height: '300px', backgroundColor: 'rgb(0,0,0)'}}>
@@ -137,20 +184,77 @@ function FilmDetailsScreen({route, navigation}) {
                     <Heading style={{textAlign: 'center', color: '#fff', padding: 12}}>{film.nameRu}</Heading>
                 </ImageBackground>
             </Box>
-            <VStack space={4} padding={3}>
-                <Text textAlign={"center"}>{film.description}</Text>
-                <YoutubePlayer
-                    height={300}
-                    forceAndroidAutoplay={true}
-                    videoId={youtube_parser("https://www.youtube.com/watch?v=UhJ_XIxKM2Q")}
-                />
+            <VStack space={3} paddingY={4}>
+                <Box paddingX={3}>
+                    <Heading fontSize={"md"}>Премьера в России:</Heading>
+                    <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
+                         _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
+                         paddingY={1}
+                         paddingX={3}
+                         width={"fit-content"}
+                         marginTop={2}
+                         rounded={"2xl"}>
+                        {route.params.premiere_date}
+                    </Box>
+                </Box>
+                <Box paddingX={3}>
+                    <Heading fontSize={"md"}>Жанры:</Heading>
+                    <FlatList
+                        data={film.genres}
+                        marginTop={2}
+                        horizontal={true}
+                        renderItem={({item}) =>
+                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
+                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
+                                 paddingY={1}
+                                 paddingX={3}
+                                 marginRight={2}
+                                 rounded={"2xl"}>
+                                {item.genre}
+                            </Box>}
+                    />
+                </Box>
+                <Box paddingX={3}>
+                    <Heading fontSize={"md"}>Описание:</Heading>
+                    <Text marginTop={2}>{film.description}</Text>
+                </Box>
+                <Box paddingX={3}>
+                    <Heading fontSize={"md"}>Страны:</Heading>
+                    <FlatList
+                        data={film.countries}
+                        marginTop={2}
+                        horizontal={true}
+                        renderItem={({item}) =>
+                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
+                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
+                                 paddingY={1}
+                                 paddingX={3}
+                                 marginRight={2}
+                                 rounded={"2xl"}>
+                                {item.country}
+                            </Box>}
+                    />
+                </Box>
+                {video?.url && (<YoutubePlayer height={215} forceAndroidAutoplay={true} marginRight={2} videoId={youtube_parser(video.url)}/>)}
+                <Box paddingX={3}>
+                    <Heading fontSize={"md"}>Кадры из фильма:</Heading>
+                    <FlatList
+                        data={images}
+                        marginTop={2}
+                        horizontal={true}
+                        renderItem={({item}) => <Poster image={item.imageUrl}/>}
+                    />
+                </Box>
+                <Box position="relative" h={80} w="100%">
+                    <Fab position="absolute"
+                         style={{backgroundColor: "rgb(0, 122, 245)", bottom: "70px", left: '50%', transform: "translateX(-50%)"}}
+                         icon={<Icon color="white" as={<FontAwesome name="ticket" />} size="sm"/>}
+                         label="Забронировать"
+                    />
+                </Box>;
             </VStack>
-            <Box style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                <Text></Text>
-                <Button onPress={() => navigation.goBack()}>Назад</Button>
-            </Box>
         </ScrollView>
-    );
+    )
 }
 
 // ROOT
