@@ -6,13 +6,13 @@ import {FontAwesome} from '@expo/vector-icons';
 import YoutubePlayer from "react-native-youtube-iframe";
 import {Text, Fab, HStack, Heading, Switch, useColorMode, NativeBaseProvider, VStack, Box, Button, FlatList, Image, Divider, ScrollView, Icon} from "native-base";
 import {ImageBackground, TouchableOpacity} from "react-native";
+import MainStage from "./seats-reservation/MainStage";
 
 const ThemeContext = React.createContext();
 
 // 2b9134aa-02ff-4744-82d3-5476cf0cc27c
 // 197a2b18-9687-4ac0-a84a-21fc9fed5506
 const API_KEY = '197a2b18-9687-4ac0-a84a-21fc9fed5506';
-
 
 // SCREENS
 // Афиша
@@ -113,7 +113,9 @@ function PosterScreen({navigation}) {
 // Расписание
 function ScheduleScreen({navigation}) {
     return (
-        <Text>Settings!</Text>
+        <ScrollView>
+            <MainStage onSelectSeat={seatId => {console.log("selected - " + seatId);}}/>
+        </ScrollView>
     );
 }
 
