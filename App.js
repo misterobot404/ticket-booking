@@ -6,13 +6,13 @@ import {FontAwesome} from '@expo/vector-icons';
 import YoutubePlayer from "react-native-youtube-iframe";
 import {Text, Fab, HStack, Heading, Switch, useColorMode, NativeBaseProvider, VStack, Box, Button, FlatList, Image, Divider, ScrollView, Icon} from "native-base";
 import {ImageBackground, TouchableOpacity} from "react-native";
-import MainStage from "./seats-reservation/MainStage";
+import SeatsPicker from "./seats-picker"
 
 const ThemeContext = React.createContext();
 
 // 2b9134aa-02ff-4744-82d3-5476cf0cc27c
 // 197a2b18-9687-4ac0-a84a-21fc9fed5506
-const API_KEY = '197a2b18-9687-4ac0-a84a-21fc9fed5506';
+const API_KEY = '2b9134aa-02ff-4744-82d3-5476cf0cc27c';
 
 // SCREENS
 // Афиша
@@ -31,11 +31,11 @@ function PosterScreen({navigation}) {
 
     function Film({film_id, title, image, premiere_date}) {
         return (
-            <Box textAlign="center" marginRight={4} width={260}>
+            <Box marginRight={4} width={260}>
                 <TouchableOpacity onPress={() => navigation.navigate('Film', {film_id: film_id, premiere_date: premiere_date})}>
                     <Image source={{uri: image}} alt="Обложка не доступна" height={260} rounded={"md"}/>
                 </TouchableOpacity>
-                <Heading fontSize={"lg"} marginTop={2}>{title}</Heading>
+                <Heading fontSize={"lg"} style={{textAlign: 'center'}} marginTop={2}>{title}</Heading>
             </Box>
         );
     }
@@ -113,9 +113,17 @@ function PosterScreen({navigation}) {
 // Расписание
 function ScheduleScreen({navigation}) {
     return (
-        <ScrollView>
-            <MainStage onSelectSeat={seatId => {console.log("selected - " + seatId);}}/>
-        </ScrollView>
+        <VStack space={2}>
+            <Box _light={{backgroundColor: "rgb(225, 225, 225)"}}
+                 _dark={{backgroundColor: "rgba(158, 158, 158, 0.3)"}}
+                 paddingY={4}
+                 marginTop={3}
+                 marginX={2}
+                 rounded={"lg"}>
+                <Heading size={"sm"} style={{textAlign: 'center'}}>ЭКРАН</Heading>
+            </Box>
+            <SeatsPicker/>
+        </VStack>
     );
 }
 
@@ -161,7 +169,7 @@ function FilmDetailsScreen({route, navigation}) {
 
     return (
         <ScrollView>
-            <Box style={{height: '300px', backgroundColor: 'rgb(0,0,0)'}}>
+            <Box style={{height: 300, backgroundColor: 'rgb(0,0,0)'}}>
                 <ImageBackground source={{uri: film.posterUrl}} alt="Обложка не доступна" style={{height: '100%', justifyContent: "flex-end"}} imageStyle={{opacity: 0.6}}>
                     <Heading style={{textAlign: 'center', color: '#fff', padding: 12}}>{film.nameRu}</Heading>
                 </ImageBackground>
@@ -172,8 +180,9 @@ function FilmDetailsScreen({route, navigation}) {
                     <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
                          _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
                          paddingY={1}
+                         direction="row"
+                         style={{alignSelf: 'flex-start'}}
                          paddingX={3}
-                         width={"fit-content"}
                          marginTop={2}
                          rounded={"2xl"}>
                         {route.params.premiere_date}
@@ -227,11 +236,8 @@ function FilmDetailsScreen({route, navigation}) {
                         renderItem={({item}) => <Poster image={item.imageUrl}/>}
                     />
                 </Box>
-                { useIsFocused() && <Fab position="fixed"
-                     style={{position: "fixed", backgroundColor: "rgb(0, 122, 245)", bottom: "70px", left: '50%', transform: "translateX(-50%)"}}
-                     icon={<Icon color="white" as={<FontAwesome name="ticket"/>} size="sm"/>}
-                     label="Забронировать"
-                /> }
+                {useIsFocused() && <Fab style={{backgroundColor: "rgb(0, 122, 245)", bottom: 70, left: '50%', transform: [{translateX: -85.75}]}} icon={<Icon color="white" as={<FontAwesome name="ticket"/>} size="sm"/>}
+                                        label="Забронировать"/>}
             </VStack>
         </ScrollView>
     )
@@ -307,3 +313,4 @@ function youtube_parser(url) {
     let match = url.match(regExp);
     return (match && match[7].length == 11) ? match[7] : false;
 }
+
