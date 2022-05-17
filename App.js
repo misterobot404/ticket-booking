@@ -1,257 +1,28 @@
-import React, {useEffect, useState} from "react";
-import {NavigationContainer, DefaultTheme, DarkTheme, useIsFocused} from '@react-navigation/native';
+import React from "react";
+import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {FontAwesome} from '@expo/vector-icons';
-import YoutubePlayer from "react-native-youtube-iframe";
-import {Text, Fab, HStack, Heading, Switch, useColorMode, NativeBaseProvider, VStack, Box, Button, FlatList, Image, Divider, ScrollView, Icon} from "native-base";
-import {ImageBackground, TouchableOpacity} from "react-native";
-import SeatsPicker from "./seats-picker"
+import {NativeBaseProvider, Image, Text} from "native-base";
 
-const ThemeContext = React.createContext();
+import MyTicketsScreen from "./screens/MyTicketsScreen";
+import PosterScreen from "./screens/PosterScreen";
+import ScheduleScreen from "./screens/ScheduleScreen";
 
-// 2b9134aa-02ff-4744-82d3-5476cf0cc27c
-// 197a2b18-9687-4ac0-a84a-21fc9fed5506
-const API_KEY = '2b9134aa-02ff-4744-82d3-5476cf0cc27c';
+import {createStore} from 'redux'
+import {Provider} from 'react-redux'
+import rootReducer from './reducers'
 
-// SCREENS
-// Афиша
-function PosterScreen({navigation}) {
-    const Stack = createNativeStackNavigator();
-    const [films, setFilms] = useState([]);
-
-    // Примечание: пустой массив зависимостей [] означает, что этот useEffect будет запущен один раз
-    useEffect(() => {
-        fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/premieres?year=2022&month=MAY", {
-            headers: new Headers({'X-API-KEY': API_KEY}),
-        })
-            .then(res => res.json())
-            .then(result => setFilms(result.items))
-    }, [])
-
-    function Film({film_id, title, image, premiere_date}) {
-        return (
-            <Box marginRight={4} width={260}>
-                <TouchableOpacity onPress={() => navigation.navigate('Film', {film_id: film_id, premiere_date: premiere_date})}>
-                    <Image source={{uri: image}} alt="Обложка не доступна" height={260} rounded={"md"}/>
-                </TouchableOpacity>
-                <Heading fontSize={"lg"} style={{textAlign: 'center'}} marginTop={2}>{title}</Heading>
-            </Box>
-        );
-    }
-
-    return (
-        <Stack.Navigator>
-            <Stack.Screen name="Main" options={{headerShown: false}} component={() => {
-                return (
-                    <ScrollView>
-                        <VStack space={7} paddingX={6} paddingY={4}>
-                            <Box width="100%">
-                                <Heading>Премьеры</Heading>
-                                <Divider my="4"/>
-                                <FlatList
-                                    data={films}
-                                    marginTop={1}
-                                    horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                    keyExtractor={item => item.kinopoiskId.toString()}
-                                />
-                            </Box>
-                            <Box width="100%">
-                                <Heading>Пушкинская карта</Heading>
-                                <Divider my="4"/>
-                                <FlatList
-                                    data={films.filter(film => film.countries.find(el => el.country === "Россия")).slice(5, 10)}
-                                    marginTop={1}
-                                    horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                    keyExtractor={item => item.kinopoiskId.toString()}
-                                />
-                            </Box>
-                            <Box width="100%">
-                                <Heading>Детям</Heading>
-                                <Divider my="4"/>
-                                <FlatList
-                                    data={films.filter(film => film.genres.find(el => el.genre === "мультфильм"))}
-                                    marginTop={1}
-                                    horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                    keyExtractor={item => item.kinopoiskId.toString()}
-                                />
-                            </Box>
-                            <Box width="100%">
-                                <Heading>Ужасы</Heading>
-                                <Divider my="4"/>
-                                <FlatList
-                                    data={films.filter(film => film.genres.find(el => el.genre === "ужасы"))}
-                                    marginTop={1}
-                                    horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                    keyExtractor={item => item.kinopoiskId.toString()}
-                                />
-                            </Box>
-                            <Box width="100%">
-                                <Heading>Комедии</Heading>
-                                <Divider my="4"/>
-                                <FlatList
-                                    data={films.filter(film => film.genres.find(el => el.genre === "комедия"))}
-                                    marginTop={1}
-                                    horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                    keyExtractor={item => item.kinopoiskId.toString()}
-                                />
-                            </Box>
-                        </VStack>
-                    </ScrollView>
-                );
-            }}/>
-            <Stack.Screen name="Film" options={{headerShown: false}} component={FilmDetailsScreen}/>
-        </Stack.Navigator>
-    );
-}
-
-// Расписание
-function ScheduleScreen({navigation}) {
-    return (
-        <VStack space={2}>
-            <Box _light={{backgroundColor: "rgb(225, 225, 225)"}}
-                 _dark={{backgroundColor: "rgba(158, 158, 158, 0.3)"}}
-                 paddingY={4}
-                 marginTop={3}
-                 marginX={2}
-                 rounded={"lg"}>
-                <Heading size={"sm"} style={{textAlign: 'center'}}>ЭКРАН</Heading>
-            </Box>
-            <SeatsPicker/>
-        </VStack>
-    );
-}
-
-// Мои билеты
-function MyTicketsScreen({navigation}) {
-    return (
-        <ToggleDarkMode/>
-    );
-}
-
-// Информация о фильме
-function FilmDetailsScreen({route, navigation}) {
-    const [film, setFilm] = useState([]);
-    const [video, setVideo] = useState([]);
-    const [images, setImages] = useState([]);
-
-    // Примечание: пустой массив зависимостей [] означает, что этот useEffect будет запущен один раз
-    useEffect(() => {
-        fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id, {
-            headers: new Headers({'X-API-KEY': API_KEY}),
-        })
-            .then(res => res.json())
-            .then(result => setFilm(result))
-        fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id + "/videos", {
-            headers: new Headers({'X-API-KEY': API_KEY}),
-        })
-            .then(res => res.json())
-            .then(result => setVideo(result.items.find(el => el.site === "YOUTUBE")))
-        fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/" + route.params.film_id + "/images", {
-            headers: new Headers({'X-API-KEY': API_KEY}),
-        })
-            .then(res => res.json())
-            .then(result => setImages(result.items))
-    }, [])
-
-    function Poster({image}) {
-        return (
-            <Box marginRight={3} width={180}>
-                <Image source={{uri: image}} alt="Обложка не доступна" height={180} rounded={"md"}/>
-            </Box>
-        );
-    }
-
-    return (
-        <ScrollView>
-            <Box style={{height: 300, backgroundColor: 'rgb(0,0,0)'}}>
-                <ImageBackground source={{uri: film.posterUrl}} alt="Обложка не доступна" style={{height: '100%', justifyContent: "flex-end"}} imageStyle={{opacity: 0.6}}>
-                    <Heading style={{textAlign: 'center', color: '#fff', padding: 12}}>{film.nameRu}</Heading>
-                </ImageBackground>
-            </Box>
-            <VStack space={3} paddingY={4}>
-                <Box paddingX={3}>
-                    <Heading fontSize={"md"}>Премьера в России:</Heading>
-                    <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                         _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                         paddingY={1}
-                         direction="row"
-                         style={{alignSelf: 'flex-start'}}
-                         paddingX={3}
-                         marginTop={2}
-                         rounded={"2xl"}>
-                        {route.params.premiere_date}
-                    </Box>
-                </Box>
-                <Box paddingX={3}>
-                    <Heading fontSize={"md"}>Жанры:</Heading>
-                    <FlatList
-                        data={film.genres}
-                        marginTop={2}
-                        horizontal={true}
-                        renderItem={({item}) =>
-                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                                 paddingY={1}
-                                 paddingX={3}
-                                 marginRight={2}
-                                 rounded={"2xl"}>
-                                {item.genre}
-                            </Box>}
-                    />
-                </Box>
-                <Box paddingX={3}>
-                    <Heading fontSize={"md"}>Описание:</Heading>
-                    <Text marginTop={2}>{film.description}</Text>
-                </Box>
-                <Box paddingX={3}>
-                    <Heading fontSize={"md"}>Страны:</Heading>
-                    <FlatList
-                        data={film.countries}
-                        marginTop={2}
-                        horizontal={true}
-                        renderItem={({item}) =>
-                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                                 paddingY={1}
-                                 paddingX={3}
-                                 marginRight={2}
-                                 rounded={"2xl"}>
-                                {item.country}
-                            </Box>}
-                    />
-                </Box>
-                {video?.url && (<YoutubePlayer height={215} forceAndroidAutoplay={true} marginRight={2} videoId={youtube_parser(video.url)}/>)}
-                <Box paddingX={3}>
-                    <Heading fontSize={"md"}>Кадры из фильма:</Heading>
-                    <FlatList
-                        data={images}
-                        marginTop={2}
-                        horizontal={true}
-                        renderItem={({item}) => <Poster image={item.imageUrl}/>}
-                    />
-                </Box>
-                {useIsFocused() && <Fab style={{backgroundColor: "rgb(0, 122, 245)", bottom: 70, left: '50%', transform: [{translateX: -85.75}]}} icon={<Icon color="white" as={<FontAwesome name="ticket"/>} size="sm"/>}
-                                        label="Забронировать"/>}
-            </VStack>
-        </ScrollView>
-    )
-}
+const store = createStore(rootReducer)
 
 // ROOT
 export default function App() {
-    const [theme, setTheme] = useState(DefaultTheme);
     const Tab = createBottomTabNavigator();
 
     return (
         <NativeBaseProvider>
-            <ThemeContext.Provider value={{theme, setTheme}}>
-                <NavigationContainer theme={theme}>
+            <Provider store={store}>
+                <Text>{this.number}</Text>
+                <NavigationContainer {/*theme={Store.colorMode}*/}>
                     <Tab.Navigator screenOptions={{tabBarStyle: {paddingBottom: 5, paddingTop: 5, height: 60}}}>
                         <Tab.Screen
                             name="Афиша"
@@ -282,35 +53,10 @@ export default function App() {
                         />
                     </Tab.Navigator>
                 </NavigationContainer>
-            </ThemeContext.Provider>
+            </Provider>
         </NativeBaseProvider>
     );
 }
 
-// Color Switch Component
-function ToggleDarkMode() {
-    const {colorMode, toggleColorMode} = useColorMode();
-    const {setTheme, theme} = React.useContext(ThemeContext);
-    return (
-        <HStack space={2} alignItems="center">
-            <Text>Dark</Text>
-            <Switch
-                isChecked={colorMode === "light"}
-                onToggle={() => {
-                    toggleColorMode();
-                    setTheme(theme === DefaultTheme ? DarkTheme : DefaultTheme);
-                }}
-                aria-label={colorMode === "light" ? "switch to dark mode" : "switch to light mode"}
-            />
-            <Text>Light</Text>
-            <Button>Кнопка</Button>
-        </HStack>
-    );
-}
 
-function youtube_parser(url) {
-    let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    let match = url.match(regExp);
-    return (match && match[7].length == 11) ? match[7] : false;
-}
 

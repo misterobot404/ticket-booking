@@ -8,9 +8,8 @@ import {
     Text,
     View,
     StyleSheet,
-    Alert
 } from 'react-native';
-import Constants from 'expo-constants';
+
 import {Box, Button, HStack, Icon, VStack} from "native-base";
 import {FontAwesome} from "@expo/vector-icons";
 
