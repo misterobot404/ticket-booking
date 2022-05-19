@@ -1,0 +1,152 @@
+[
+  {
+    "kinopoiskId": 882288,
+    "nameRu": "Суворов: Великое путешествие",
+    "nameEn": "",
+    "year": 2021,
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/882288.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/882288.jpg",
+    "countries": [
+      {
+        "country": "Россия"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "мультфильм"
+      },
+      {
+        "genre": "приключения"
+      },
+      {
+        "genre": "история"
+      }
+    ],
+    "duration": 85,
+    "premiereRu": "2022-05-01"
+  },
+  {
+    "kinopoiskId": 4524632,
+    "nameRu": "Хэллбендер",
+    "nameEn": "Hellbender",
+    "year": 2021,
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/4524632.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/4524632.jpg",
+    "countries": [
+      {
+        "country": "США"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "ужасы"
+      }
+    ],
+    "duration": 86,
+    "premiereRu": "2022-05-05"
+  },
+  {
+    "kinopoiskId": 819722,
+    "nameRu": "Где Анна Франк",
+    "nameEn": "Where Is Anne Frank",
+    "year": 2021,
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/819722.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/819722.jpg",
+    "countries": [
+      {
+        "country": "Бельгия"
+      },
+      {
+        "country": "Люксембург"
+      },
+      {
+        "country": "Франция"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "мультфильм"
+      },
+      {
+        "genre": "драма"
+      },
+      {
+        "genre": "семейный"
+      }
+    ],
+    "duration": 99,
+    "premiereRu": "2022-05-05"
+  },
+  {
+    "kinopoiskId": 1308438,
+    "nameRu": "Проклятие плачущей: Безвременье",
+    "nameEn": "The Nameless Days",
+    "year": 2022,
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/1308438.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/1308438.jpg",
+    "countries": [
+      {
+        "country": "США"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "ужасы"
+      }
+    ],
+    "duration": 92,
+    "premiereRu": "2022-05-05"
+  },
+  {
+    "kinopoiskId": 4310320,
+    "nameRu": "Сашка. Дневник солдата",
+    "nameEn": "",
+    "year": 2021,
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/4310320.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/4310320.jpg",
+    "countries": [
+      {
+        "country": "Россия"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "короткометражка"
+      },
+      {
+        "genre": "военный"
+      },
+      {
+        "genre": "драма"
+      }
+    ],
+    "duration": 38,
+    "premiereRu": "2022-05-05"
+  },
+  {
+    "kinopoiskId": 4473142,
+    "nameRu": "Война Раи Синициной",
+    "nameEn": "Milchamta shel Raya Sinitsina",
+    "year": 2020,
+    "posterUrl": "https://kinopoiskapiunofficial.tech/images/posters/kp/4473142.jpg",
+    "posterUrlPreview": "https://kinopoiskapiunofficial.tech/images/posters/kp_small/4473142.jpg",
+    "countries": [
+      {
+        "country": "Израиль"
+      },
+      {
+        "country": "Россия"
+      }
+    ],
+    "genres": [
+      {
+        "genre": "документальный"
+      },
+      {
+        "genre": "биография"
+      }
+    ],
+    "duration": 88,
+    "premiereRu": "2022-05-05"
+  }
+]

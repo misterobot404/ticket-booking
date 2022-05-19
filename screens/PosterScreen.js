@@ -4,27 +4,17 @@ import {Box, Divider, FlatList, Heading, Image, ScrollView, VStack} from "native
 import {TouchableOpacity} from "react-native";
 import FilmDetailsScreen from "./FilmDetailsScreen";
 
-// 2b9134aa-02ff-4744-82d3-5476cf0cc27c
-// 197a2b18-9687-4ac0-a84a-21fc9fed5506
-const API_KEY = '2b9134aa-02ff-4744-82d3-5476cf0cc27c';
-
 export default function PosterScreen({navigation}) {
     const Stack = createNativeStackNavigator();
     const [films, setFilms] = useState([]);
 
     // Примечание: пустой массив зависимостей [] означает, что этот useEffect будет запущен один раз
-    useEffect(() => {
-        fetch("https://kinopoiskapiunofficial.tech/api/v2.2/films/premieres?year=2022&month=MAY", {
-            headers: new Headers({'X-API-KEY': API_KEY}),
-        })
-            .then(res => res.json())
-            .then(result => setFilms(result.items))
-    }, [])
+    useEffect(() => setFilms(require('../data/films.json')), [])
 
     function Film({film_id, title, image, premiere_date}) {
         return (
             <Box marginRight={4} width={260}>
-                <TouchableOpacity onPress={() => navigation.navigate('Film', {film_id: film_id, premiere_date: premiere_date})}>
+                <TouchableOpacity onPress={() => navigation.navigate('Фильм', {film_id: film_id, premiere_date: premiere_date})}>
                     <Image source={{uri: image}} alt="Обложка не доступна" height={260} rounded={"md"}/>
                 </TouchableOpacity>
                 <Heading fontSize={"lg"} style={{textAlign: 'center'}} marginTop={2}>{title}</Heading>
@@ -34,15 +24,15 @@ export default function PosterScreen({navigation}) {
 
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Main" options={{headerShown: false}} component={() => {
+            <Stack.Screen name="Афиша" options={{headerShown: false}} component={() => {
                 return (
                     <ScrollView>
                         <VStack space={7} paddingX={6} paddingY={4}>
-                            <Box width="100%">
+                            <Box width="100%" marginTop={1}>
                                 <Heading>Премьеры</Heading>
                                 <Divider my="4"/>
                                 <FlatList
-                                    data={films}
+                                    data={films.slice().sort(() => Math.random() - 0.5)}
                                     marginTop={1}
                                     horizontal={true}
                                     renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
@@ -53,7 +43,7 @@ export default function PosterScreen({navigation}) {
                                 <Heading>Пушкинская карта</Heading>
                                 <Divider my="4"/>
                                 <FlatList
-                                    data={films.filter(film => film.countries.find(el => el.country === "Россия")).slice(5, 10)}
+                                    data={films.filter(film => film.countries.find(el => el.country === "Россия"))}
                                     marginTop={1}
                                     horizontal={true}
                                     renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
@@ -82,22 +72,11 @@ export default function PosterScreen({navigation}) {
                                     keyExtractor={item => item.kinopoiskId.toString()}
                                 />
                             </Box>
-                            <Box width="100%">
-                                <Heading>Комедии</Heading>
-                                <Divider my="4"/>
-                                <FlatList
-                                    data={films.filter(film => film.genres.find(el => el.genre === "комедия"))}
-                                    marginTop={1}
-                                    horizontal={true}
-                                    renderItem={({item}) => (<Film film_id={item.kinopoiskId} premiere_date={item.premiereRu} title={item.nameRu} image={item.posterUrlPreview}/>)}
-                                    keyExtractor={item => item.kinopoiskId.toString()}
-                                />
-                            </Box>
                         </VStack>
                     </ScrollView>
                 );
             }}/>
-            <Stack.Screen name="Film" options={{headerShown: false}} component={FilmDetailsScreen}/>
+            <Stack.Screen name="Фильм" options={{headerShown: false}} component={FilmDetailsScreen}/>
         </Stack.Navigator>
     );
 }

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Fab, FlatList, Heading, Icon, Image, ScrollView, Text, VStack} from "native-base";
+import {Badge, Box, Fab, FlatList, Heading, Icon, Image, ScrollView, Text, VStack} from "native-base";
 import {ImageBackground} from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
 import {useIsFocused} from "@react-navigation/native";
@@ -48,19 +48,12 @@ export default function FilmDetailsScreen({route, navigation}) {
                     <Heading style={{textAlign: 'center', color: '#fff', padding: 12}}>{film.nameRu}</Heading>
                 </ImageBackground>
             </Box>
-            <VStack space={3} paddingY={4}>
+            <VStack space={4} paddingY={4}>
                 <Box paddingX={3}>
                     <Heading fontSize={"md"}>Премьера в России:</Heading>
-                    <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                         _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                         paddingY={1}
-                         direction="row"
-                         style={{alignSelf: 'flex-start'}}
-                         paddingX={3}
-                         marginTop={2}
-                         rounded={"2xl"}>
+                    <Badge marginRight={2} _light={{backgroundColor: "rgb(230, 230, 230)"}} direction="row" style={{alignSelf: 'flex-start'}} marginTop={2}>
                         {route.params.premiere_date}
-                    </Box>
+                    </Badge>
                 </Box>
                 <Box paddingX={3}>
                     <Heading fontSize={"md"}>Жанры:</Heading>
@@ -69,19 +62,13 @@ export default function FilmDetailsScreen({route, navigation}) {
                         marginTop={2}
                         horizontal={true}
                         renderItem={({item}) =>
-                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                                 paddingY={1}
-                                 paddingX={3}
-                                 marginRight={2}
-                                 rounded={"2xl"}>
-                                {item.genre}
-                            </Box>}
+                            <Badge marginRight={2} _light={{backgroundColor: "rgb(230, 230, 230)"}}>{item.genre}</Badge>
+                        }
                     />
                 </Box>
                 <Box paddingX={3}>
                     <Heading fontSize={"md"}>Описание:</Heading>
-                    <Text marginTop={2}>{film.description}</Text>
+                    <Text marginTop={2} style={{textAlign: "justify"}}>{film.description}</Text>
                 </Box>
                 <Box paddingX={3}>
                     <Heading fontSize={"md"}>Страны:</Heading>
@@ -90,28 +77,27 @@ export default function FilmDetailsScreen({route, navigation}) {
                         marginTop={2}
                         horizontal={true}
                         renderItem={({item}) =>
-                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                                 paddingY={1}
-                                 paddingX={3}
-                                 marginRight={2}
-                                 rounded={"2xl"}>
+                            <Badge marginRight={2} _light={{backgroundColor: "rgb(230, 230, 230)"}}>
                                 {item.country}
-                            </Box>}
+                            </Badge>
+                        }
                     />
                 </Box>
                 {video?.url && (<YoutubePlayer height={215} forceAndroidAutoplay={true} marginRight={2} videoId={youtube_parser(video.url)}/>)}
-                <Box paddingX={3}>
-                    <Heading fontSize={"md"}>Кадры из фильма:</Heading>
-                    <FlatList
-                        data={images}
-                        marginTop={2}
-                        horizontal={true}
-                        renderItem={({item}) => <Poster image={item.imageUrl}/>}
-                    />
-                </Box>
-                {useIsFocused() && <Fab style={{backgroundColor: "rgb(0, 122, 245)", bottom: 70, left: '50%', transform: [{translateX: -85.75}]}} icon={<Icon color="white" as={<FontAwesome name="ticket"/>} size="sm"/>}
-                                        label="Забронировать"/>}
+                {images.length > 0 &&
+                    <Box paddingX={3}>
+                        <Heading fontSize={"md"}>Кадры из фильма:</Heading>
+                        <FlatList
+                            data={images}
+                            marginTop={2}
+                            horizontal={true}
+                            renderItem={({item}) => <Poster image={item.imageUrl}/>}
+                        />
+                    </Box>
+                }
+                {useIsFocused() &&
+                    <Fab style={{backgroundColor: "rgb(0, 122, 245)", width: 180, bottom: 70, left: '50%', transform: [{translateX: -90}]}} icon={<Icon color="white" as={<FontAwesome name="ticket"/>} size="sm"/>}
+                         label="Забронировать" onPress={() => navigation.navigate('Расписание', {film_id: route.params.film_id})}/>}
             </VStack>
         </ScrollView>
     )

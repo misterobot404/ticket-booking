@@ -10,25 +10,39 @@ import {
     StyleSheet,
 } from 'react-native';
 
-import {Box, Button, HStack, Icon, VStack} from "native-base";
+import {Box, Button, Heading, HStack, Icon, VStack} from "native-base";
 import {FontAwesome} from "@expo/vector-icons";
 
 const {width, height} = Dimensions.get('window');
-const ROWS = 6;
-const COLS = 5;
+
+const selected_room = 0;
+const disabledItems = [1, 5, 10];
+const ROOMS = [
+    {
+        ROWS: 5,
+        COLS: 5,
+        gradient: 15
+    },
+    {
+        ROWS: 12,
+        COLS: 12,
+        gradient: 35
+    },
+]
+
 const TIMING = 600;
 const TEXT_HEIGHT = 20;
 let seats = [];
 let seatsAnimation = [];
 
-for (let i = 0; i < ROWS + COLS - 1; i++) {
+for (let i = 0; i < ROOMS[selected_room].ROWS + ROOMS[selected_room].COLS - 1; i++) {
     seatsAnimation.push(i);
 }
 
-Array(ROWS * COLS).join(' ').split(' ').map((_, i) => {
-    const currentIndex = i % COLS + Math.floor(i / COLS) % ROWS;
+Array(ROOMS[selected_room].ROWS * ROOMS[selected_room].COLS).join(' ').split(' ').map((_, i) => {
+    const currentIndex = i % ROOMS[selected_room].COLS + Math.floor(i / ROOMS[selected_room].COLS) % ROOMS[selected_room].ROWS;
     const currentItem = {
-        label: i + 1 < 10 ? '0' + (i + 1) : i + 1,
+        label: (i % ROOMS[selected_room].COLS + 1 < 10 ? '0' : null) + ((i % ROOMS[selected_room].COLS + 1)),
         s: currentIndex,
         key: i,
         animated: new Animated.Value(1)
@@ -43,7 +57,9 @@ export default class App extends Component {
 
         this.state = {
             finished: false,
-            selectedItems: []
+            selectedItems: [],
+            scheduleItem: props.route.params.scheduleItem,
+            film: props.route.params.filmItem,
         };
 
         this.selectionAnimation = new Animated.Value(0);
@@ -86,6 +102,7 @@ export default class App extends Component {
         });
         const {selectedItems} = this.state;
         const isSelected = selectedItems.includes(item.key);
+        const isBlocked = disabledItems.includes(item.key);
         const itemPressScale = item.animated.interpolate({
             inputRange: [0, 0.5, 1],
             outputRange: [1, 0, 1]
@@ -100,11 +117,7 @@ export default class App extends Component {
                         : [...selectedItems, item.key];
 
                     item.animated.setValue(0);
-                    this.setState(
-                        {
-                            selectedItems: selected
-                        },
-                        () => {
+                    this.setState({selectedItems: selected}, () => {
                             Animated.parallel([
                                 Animated.timing(this.selectionAnimation, {
                                     toValue: -TEXT_HEIGHT * selected.length,
@@ -118,10 +131,9 @@ export default class App extends Component {
                             ]).start();
                         }
                     );
+                    console.log(selectedItems);
                 }}
-                style={{
-                    opacity: 1 - parseInt(item.s) / 15
-                }}>
+                style={{opacity: 1 - parseInt(item.s) / ROOMS[selected_room].gradient}}>
                 <Animated.View
                     style={{
                         transform: [
@@ -131,10 +143,9 @@ export default class App extends Component {
                         ]
                     }}>
                     <Animated.View
-                        style={[
-                            {
-                                backgroundColor: isSelected ? '#8EF0E7' : '#3493FF'
-                            },
+                        style={[{
+                            backgroundColor: isSelected ? '#5AD1FF' : (isBlocked ? '#5C596D' : '#3493FF')
+                        },
                             styles.item,
                             {
                                 transform: [
@@ -155,74 +166,98 @@ export default class App extends Component {
 
     render() {
         return (
-            <Box style={{alignItems: 'center'}}>
-                <FlatList
-                    numColumns={COLS}
-                    extraData={this.state.selectedItems}
-                    data={seats}
-                    style={{flexGrow: 1, flexShrink: 1}}
-                    renderItem={this.renderItem}
-                />
-                <HStack justifyContent={"space-between"} width={"100%"} marginTop={3} paddingX={3} style={{alignItems: "center"}}>
-                    <VStack style={{flexShrink: 1}} space={1}>
-                        <Text _dark={{color: "rgb(250, 250, 250)"}}>Дата: 16 мая</Text>
-                        <Text _dark={{color: "rgb(250, 250, 250)"}}>Время: 18:20</Text>
-                        <Text _dark={{color: "rgb(250, 250, 250)"}}>Фильм: Суворов</Text>
-                        <HStack>
-                            <Text _dark={{color: "rgb(250, 250, 250)"}}>Выбрано мест:</Text>
-                            <View _dark={{color: "rgb(250, 250, 250)"}} style={{height: TEXT_HEIGHT, overflow: 'hidden', backgroundColor: 'transparent'}}>
-                                <Animated.View style={{
-                                    flexDirection: 'column',
-                                    alignItems: 'flex-start',
-                                    justifyContent: 'flex-start',
-                                    transform: [
-                                        {
-                                            translateY: this.selectionAnimation
-                                        }
-                                    ]
-                                }}>
-                                    {Array(ROWS * COLS + 1).join(' ').split(' ').map((_, i) => {
-                                        return (
-                                            <View
-                                                key={i}
-                                                style={{
-                                                    height: TEXT_HEIGHT,
-                                                    width: TEXT_HEIGHT,
-                                                    marginRight: 4,
-                                                    alignItems: 'flex-end',
-                                                    justifyContent: 'center'
-                                                }}>
-                                                <Text style={[styles.text]}>
-                                                    {i}
-                                                </Text>
-                                            </View>
-                                        );
-                                    })}
-                                </Animated.View>
-                            </View>
-                        </HStack>
-                        <Text _dark={{color: "rgb(250, 250, 250)"}}>
-                            Итого: 600 ₽
-                        </Text>
-                    </VStack>
-                    <Button colorScheme={"blue"} rounded={"lg"} endIcon={<Icon as={FontAwesome} name="ticket" size={"lg"}/>}>
-                        Забронировать
-                    </Button>
+            <VStack space={2}>
+                <Box _light={{backgroundColor: "rgb(225, 225, 225)"}}
+                     _dark={{backgroundColor: "rgba(158, 158, 158, 0.3)"}}
+                     paddingY={4}
+                     marginTop={2}
+                     marginX={2}
+                     rounded={"lg"}>
+                    <Heading size={"sm"} style={{textAlign: 'center'}}>ЭКРАН</Heading>
+                </Box>
+                <HStack space={"2"} padding={2} marginBottom={1} justifyContent={"center"}>
+                    <HStack alignItems={"center"}>
+                        <Box width={4} height={4} backgroundColor={"#3493FF"} rounded={"full"}/>
+                        <Text> - доступно </Text>
+                    </HStack>
+                    <HStack alignItems={"center"}>
+                        <Box width={4} height={4} backgroundColor={"#5C596D"} rounded={"full"}/>
+                        <Text> - не доступно </Text>
+                    </HStack>
+                    <HStack alignItems={"center"}>
+                        <Box width={4} height={4} backgroundColor={"#5AD1FF"} rounded={"full"}/>
+                        <Text> - выбрано </Text>
+                    </HStack>
                 </HStack>
-            </Box>
+                <Box style={{alignItems: 'center'}}>
+                    <FlatList
+                        numColumns={ROOMS[selected_room].COLS}
+                        extraData={this.state.selectedItems}
+                        data={seats}
+                        style={{flexGrow: 1, flexShrink: 1}}
+                        renderItem={this.renderItem}
+                    />
+                    <HStack justifyContent={"space-between"} width={"100%"} marginTop={3} paddingX={3} style={{alignItems: "center"}}>
+                        <VStack style={{flexShrink: 1}} space={1}>
+                            <Text>Фильм: {this.state.film.nameRu}</Text>
+                            <Text>Дата: 16 мая</Text>
+                            <Text>Время: 18:20</Text>
+                            <HStack>
+                                <Text>Выбрано мест:</Text>
+                                <View style={{height: TEXT_HEIGHT, overflow: 'hidden', backgroundColor: 'transparent'}}>
+                                    <Animated.View style={{
+                                        flexDirection: 'column',
+                                        alignItems: 'flex-start',
+                                        justifyContent: 'flex-start',
+                                        transform: [
+                                            {
+                                                translateY: this.selectionAnimation
+                                            }
+                                        ]
+                                    }}>
+                                        {Array(ROOMS[selected_room].ROWS * ROOMS[selected_room].COLS + 1).join(' ').split(' ').map((_, i) => {
+                                            return (
+                                                <View
+                                                    key={i}
+                                                    style={{
+                                                        height: TEXT_HEIGHT,
+                                                        width: TEXT_HEIGHT,
+                                                        marginRight: 4,
+                                                        alignItems: 'flex-end',
+                                                        justifyContent: 'center'
+                                                    }}>
+                                                    <Text style={[styles.text]}>
+                                                        {i}
+                                                    </Text>
+                                                </View>
+                                            );
+                                        })}
+                                    </Animated.View>
+                                </View>
+                            </HStack>
+                            <Text>
+                                Итого: 600 ₽
+                            </Text>
+                        </VStack>
+                        <Button colorScheme={"blue"} rounded={"lg"} endIcon={<Icon as={FontAwesome} name="ticket" size={"lg"}/>}>
+                            Забронировать
+                        </Button>
+                    </HStack>
+                </Box>
+            </VStack>
         );
     }
 }
 
 const styles = StyleSheet.create({
     item: {
-        width: width / COLS,
-        height: width / COLS,
+        width: width / ROOMS[selected_room].COLS,
+        height: width / ROOMS[selected_room].COLS,
         alignItems: 'center',
         justifyContent: 'center'
     },
     itemText: {
         color: 'white',
-        fontWeight: '700'
+        fontWeight: '600'
     }
 });
