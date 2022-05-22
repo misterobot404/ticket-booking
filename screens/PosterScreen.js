@@ -24,7 +24,7 @@ export default function PosterScreen({navigation}) {
 
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Афиша" options={{headerShown: false}} component={() => {
+            <Stack.Screen name="Main" options={{headerShown: false}} component={() => {
                 return (
                     <ScrollView>
                         <VStack space={7} paddingX={6} paddingY={4}>

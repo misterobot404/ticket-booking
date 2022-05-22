@@ -1,11 +1,10 @@
 import SeatsPicker from "./SeatsPickerScreen"
 import React, {useEffect, useState} from "react";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {Badge, Box, Button, Divider, Fab, FlatList, Heading, HStack, Icon, Image, Radio, ScrollView, Text, VStack} from "native-base";
+import {Box, Divider, Fab, FlatList, Heading, HStack, Icon, Image, Radio, ScrollView, Text, VStack} from "native-base";
 import {useFocusEffect, useIsFocused} from "@react-navigation/native";
 import {FontAwesome} from "@expo/vector-icons";
 import {TouchableOpacity} from "react-native";
-import {Spacer} from "native-base/src/components/primitives/Flex";
 
 export default function ScheduleScreen({route, navigation}) {
     const Stack = createNativeStackNavigator();
@@ -36,15 +35,14 @@ export default function ScheduleScreen({route, navigation}) {
         return (
             <TouchableOpacity onPress={() => navigation.navigate('Места', {scheduleItem: item, filmItem: films.find((el) => el.kinopoiskId === item.kinopoiskId)})}>
                 <HStack
-                    marginX={3}
-                    marginBottom={3}
+                    marginBottom={4}
                     padding={2}
                     _light={{backgroundColor: "rgb(235, 235, 235)"}}
                     _dark={{backgroundColor: "rgba(200, 200, 200, 0.3)"}}
                     rounded={"sm"}
                 >
                     <Image source={{uri: films.find((el) => el.kinopoiskId === item.kinopoiskId).posterUrl}} alt="Обложка не доступна" height={100} width={100} rounded={"sm"}/>
-                    <Text paddingX={3}>{films.find((el) => el.kinopoiskId === item.kinopoiskId).nameRu}</Text>
+                    <Text paddingX={3} style={{flexShrink: 1}}>{films.find((el) => el.kinopoiskId === item.kinopoiskId).nameRu}</Text>
                     <VStack ml={"auto"}>
                         <Heading size={"sm"} textAlign={"right"}>{item.time}</Heading>
                         <Text fontSize={12} mt={"auto"}>{item.room === 0 ? "Малый зал" : "Большой зал"}</Text>
@@ -61,58 +59,62 @@ export default function ScheduleScreen({route, navigation}) {
 
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Расписание" options={{headerShown: false}} component={() => {
+            <Stack.Screen name="Main" options={{headerShown: false}} component={() => {
                 return (
                     <ScrollView>
-                        <VStack space={4} paddingX={3} paddingY={4}>
+                        <VStack space={4} paddingTop={7} paddingX={4}>
                             <Radio.Group name="myRadioGroup" value={day} direction={"row"} onChange={nextValue => setDay(nextValue)}>
-                                <HStack space={4}>
-                                    <Radio value="0" size="sm">
-                                        <Box textAlign={"center"}>
-                                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                                                 justifyContent={"center"}
-                                                 rounded={"2xl"}
-                                                 padding={3}
-                                            >
-                                                <Heading size={"xs"}>{days[new Date().getDay()]}</Heading>
-                                                <Heading size={"md"}>{new Date().getDate()}</Heading>
+                                <ScrollView horizontal={true}>
+                                    <HStack space={5}>
+                                        <Radio value="0" size="sm">
+                                            <Box style={{textAlign: 'center'}}>
+                                                <Box _light={{backgroundColor: "rgb(225, 225, 225)"}}
+                                                     _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
+                                                     justifyContent={"center"}
+                                                     rounded={"2xl"}
+                                                     padding={3}
+                                                >
+                                                    <Heading textAlign={"center"} size={"xs"}>{days[new Date().getDay()]}</Heading>
+                                                    <Heading textAlign={"center"} mt={1} size={"md"}>{new Date().getDate()}</Heading>
+                                                </Box>
+                                                <Text textAlign={"center"}>Сегодня</Text>
                                             </Box>
-                                            <Text>Сегодня</Text>
-                                        </Box>
-                                    </Radio>
-                                    <Radio value="1" size="sm">
-                                        <Box textAlign={"center"}>
-                                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                                                 justifyContent={"center"}
-                                                 rounded={"2xl"}
-                                                 padding={3}
-                                            >
-                                                <Heading size={"xs"}>{days[new Date().getDay() + 1]}</Heading>
-                                                <Heading size={"md"}>{new Date().getDate() + 1}</Heading>
+                                        </Radio>
+                                        <Radio value="1" size="sm">
+                                            <Box textAlign={"center"}>
+                                                <Box _light={{backgroundColor: "rgb(225, 225, 225)"}}
+                                                     _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
+                                                     justifyContent={"center"}
+                                                     rounded={"2xl"}
+                                                     padding={3}
+                                                >
+                                                    <Heading textAlign={"center"} size={"xs"}>{days[new Date().getDay() + 1]}</Heading>
+                                                    <Heading textAlign={"center"} mt={1} size={"md"}>{new Date().getDate() + 1}</Heading>
+                                                </Box>
+                                                <Text textAlign={"center"}>Завтра</Text>
                                             </Box>
-                                            <Text>Завтра</Text>
-                                        </Box>
-                                    </Radio>
-                                    <Radio value="2" size="sm">
-                                        <Box textAlign={"center"}>
-                                            <Box _light={{backgroundColor: "rgb(235, 235, 235)"}}
-                                                 _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
-                                                 justifyContent={"center"}
-                                                 rounded={"2xl"}
-                                                 padding={3}
-                                            >
-                                                <Heading size={"xs"}>{days[new Date().getDay() + 2]}</Heading>
-                                                <Heading size={"md"}>{new Date().getDate() + 2}</Heading>
+                                        </Radio>
+                                        <Radio value="2" size="sm">
+                                            <Box style={{textAlign: 'center'}}>
+                                                <Box _light={{backgroundColor: "rgb(230, 230, 230)"}}
+                                                     _dark={{backgroundColor: "rgba(200, 200, 200, 0.6)"}}
+                                                     justifyContent={"center"}
+                                                     rounded={"2xl"}
+                                                     padding={3}
+                                                >
+                                                    <Heading textAlign={"center"} size={"xs"}>{days[new Date().getDay() + 2]}</Heading>
+                                                    <Heading textAlign={"center"} mt={1} size={"md"}>{new Date().getDate() + 2}</Heading>
+                                                </Box>
+                                                <Text textAlign={"center"}>Послезавтра</Text>
                                             </Box>
-                                            <Text>Послезавтра</Text>
-                                        </Box>
-                                    </Radio>
-                                </HStack>
+                                        </Radio>
+                                    </HStack>
+                                </ScrollView>
                             </Radio.Group>
 
-                            <FlatList data={scheduleTrue()} marginTop={2} renderItem={({item}) => <ScheduleItem item={item}/>}/>
+                            <Divider/>
+
+                            <FlatList data={scheduleTrue()} renderItem={({item}) => <ScheduleItem item={item}/>}/>
 
                             {route.params?.film_id && useIsFocused() &&
                                 <Fab style={{backgroundColor: "rgb(0, 122, 245)", width: 200, bottom: 70, left: '50%', transform: [{translateX: -100}]}}

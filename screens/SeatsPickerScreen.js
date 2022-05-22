@@ -13,47 +13,48 @@ import {
 import {Box, Button, Heading, HStack, Icon, VStack} from "native-base";
 import {FontAwesome} from "@expo/vector-icons";
 
-const {width, height} = Dimensions.get('window');
-
-const selected_room = 0;
-const disabledItems = [1, 5, 10];
-const ROOMS = [
-    {
-        ROWS: 5,
-        COLS: 5,
-        gradient: 15
-    },
-    {
-        ROWS: 12,
-        COLS: 12,
-        gradient: 35
-    },
-]
-
-const TIMING = 600;
-const TEXT_HEIGHT = 20;
-let seats = [];
-let seatsAnimation = [];
-
-for (let i = 0; i < ROOMS[selected_room].ROWS + ROOMS[selected_room].COLS - 1; i++) {
-    seatsAnimation.push(i);
-}
-
-Array(ROOMS[selected_room].ROWS * ROOMS[selected_room].COLS).join(' ').split(' ').map((_, i) => {
-    const currentIndex = i % ROOMS[selected_room].COLS + Math.floor(i / ROOMS[selected_room].COLS) % ROOMS[selected_room].ROWS;
-    const currentItem = {
-        label: (i % ROOMS[selected_room].COLS + 1 < 10 ? '0' : null) + ((i % ROOMS[selected_room].COLS + 1)),
-        s: currentIndex,
-        key: i,
-        animated: new Animated.Value(1)
-    };
-
-    seats.push(currentItem);
-});
-
 export default class App extends Component {
     constructor(props) {
         super(props);
+
+        const {width, height} = Dimensions.get('window');
+
+        const selected_room = 0;
+        const disabledItems = [1, 5, 10];
+        const ROOMS = [
+            {
+                ROWS: 5,
+                COLS: 5,
+                gradient: 15
+            },
+            {
+                ROWS: 12,
+                COLS: 12,
+                gradient: 35
+            },
+        ]
+
+        const TIMING = 600;
+        const TEXT_HEIGHT = 20;
+
+        let seats = [];
+        let seatsAnimation = [];
+
+        for (let i = 0; i < ROOMS[selected_room].ROWS + ROOMS[selected_room].COLS - 1; i++) {
+            seatsAnimation.push(i);
+        }
+
+        Array(ROOMS[selected_room].ROWS * ROOMS[selected_room].COLS).join(' ').split(' ').map((_, i) => {
+            const currentIndex = i % ROOMS[selected_room].COLS + Math.floor(i / ROOMS[selected_room].COLS) % ROOMS[selected_room].ROWS;
+            const currentItem = {
+                label: (i % ROOMS[selected_room].COLS + 1 < 10 ? '0' : null) + ((i % ROOMS[selected_room].COLS + 1)),
+                s: currentIndex,
+                key: i,
+                animated: new Animated.Value(1)
+            };
+
+            seats.push(currentItem);
+        });
 
         this.state = {
             finished: false,
