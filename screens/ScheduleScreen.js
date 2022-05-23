@@ -1,13 +1,14 @@
 import SeatsPicker from "./SeatsPickerScreen"
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {Box, Divider, Fab, FlatList, Heading, HStack, Icon, Image, Radio, ScrollView, Text, VStack} from "native-base";
 import {useFocusEffect, useIsFocused, useNavigation} from "@react-navigation/native";
 import {FontAwesome} from "@expo/vector-icons";
 import {TouchableOpacity} from "react-native";
 
+const Stack = createNativeStackNavigator();
+
 export default function ScheduleScreen({route, navigation}) {
-    const Stack = createNativeStackNavigator();
     const [schedule, setSchedule] = useState(require('../data/schedule.json'));
     const [films, setFilms] = useState(require('../data/films.json'));
     const [day, setDay] = useState("0");

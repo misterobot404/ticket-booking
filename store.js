@@ -7,13 +7,11 @@ const tickets = (state = [], action) => {
         case 'SET_TICKETS_LIST':
             return action.payload;
         case 'ADD_TICKET':
-            state.push(action.payload);
+            state = [...state, action.payload];
             AsyncStorage.setItem('@tickets', JSON.stringify(state));
             return state;
         case 'DELETE_TICKET':
-            console.log(action.payload);
             state = state.filter((ticket) => ticket.id !== action.payload.id);
-            console.log(state);
             AsyncStorage.setItem('@tickets', JSON.stringify(state));
             return state;
         default:

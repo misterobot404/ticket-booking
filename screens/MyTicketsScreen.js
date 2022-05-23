@@ -9,7 +9,9 @@ async function removeTicket(props) {
 }
 
 class MyTicketsScreen extends Component {
-    constructor(props) {super(props);}
+    constructor(props) {
+        super(props);
+    }
 
     render() {
         function Tickets(props) {
@@ -94,6 +96,5 @@ function matchDispatchToProps(dispatch) {
     return bindActionCreators({toggle: toggle, deleteTicket: deleteTicket}, dispatch)
 }
 
-connect(mapStateToProps, matchDispatchToProps)(removeTicket)
 
 export default connect(mapStateToProps, matchDispatchToProps)(MyTicketsScreen)

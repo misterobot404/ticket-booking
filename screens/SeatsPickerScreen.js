@@ -8,10 +8,10 @@ import {
     Text,
     StyleSheet,
 } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 
 import {Badge, Box, Button, Fab, Heading, HStack, Icon, Modal, ScrollView, VStack} from "native-base";
 import {FontAwesome} from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 
@@ -88,7 +88,8 @@ class App extends Component {
             selected_room: selected_room,
             styles: styles,
             selectionAnimation: selectionAnimation,
-            navigation: props.navigation
+            navigation: props.navigation,
+            tickets: props.tickets
         };
     }
 
@@ -123,11 +124,22 @@ class App extends Component {
         });
         const {selectedItems} = this.state;
         const isSelected = selectedItems.includes(item.key);
-        const isBlocked = this.state.scheduleItem.broken.includes(item.key);
+        const isBlocked = this.state.scheduleItem.broken.includes(item.key) || elInTickets(this.state)
+
         const itemPressScale = item.animated.interpolate({
             inputRange: [0, 0.5, 1],
             outputRange: [1, 0, 1]
         });
+
+        function elInTickets(state) {
+            const ticketsForSchedule = state.tickets.filter((el) => el.scheduleId === state.scheduleItem.id);
+
+            let res = false;
+            ticketsForSchedule.forEach((el) => {
+                if (el.places.includes(item.key)) res = true;
+            })
+            return res;
+        }
 
         return (
             <TouchableOpacity
@@ -252,7 +264,7 @@ class App extends Component {
                             Забронировать
                         </Button>
                         <Modal isOpen={this.state.showModal} onClose={() => this.setState({showModal: false})} size="lg">
-                            <Modal.Content maxWidth="350">
+                            <Modal.Content maxWidth="400">
                                 <Modal.CloseButton/>
                                 <Modal.Header>Бронирование билетов</Modal.Header>
                                 <Modal.Body>
@@ -279,7 +291,7 @@ class App extends Component {
                                                 <FlatList
                                                     data={this.state.selectedItems}
                                                     renderItem={(item) =>
-                                                        <Box marginTop={2} maxWidth={100}>
+                                                        <Box marginTop={2} maxWidth={120}>
                                                             <Badge _light={{backgroundColor: "rgb(230, 230, 230)"}}>
                                                                 {"Ряд: " + (Math.floor(item.item / ROOMS[this.state.selected_room].COLS) + 1) + ", Место: " + (item.item % ROOMS[this.state.selected_room].COLS + 1)}
                                                             </Badge>
