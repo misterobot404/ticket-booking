@@ -2,7 +2,7 @@ import SeatsPicker from "./SeatsPickerScreen"
 import React, {useEffect, useState} from "react";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {Box, Divider, Fab, FlatList, Heading, HStack, Icon, Image, Radio, ScrollView, Text, VStack} from "native-base";
-import {useFocusEffect, useIsFocused} from "@react-navigation/native";
+import {useFocusEffect, useIsFocused, useNavigation} from "@react-navigation/native";
 import {FontAwesome} from "@expo/vector-icons";
 import {TouchableOpacity} from "react-native";
 
@@ -11,6 +11,8 @@ export default function ScheduleScreen({route, navigation}) {
     const [schedule, setSchedule] = useState(require('../data/schedule.json'));
     const [films, setFilms] = useState(require('../data/films.json'));
     const [day, setDay] = useState("0");
+    const nav = useNavigation();
+
     const days = [
         'Воскресенье',
         'Понедельник',
@@ -33,7 +35,7 @@ export default function ScheduleScreen({route, navigation}) {
 
     function ScheduleItem({item}) {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('Места', {scheduleItem: item, filmItem: films.find((el) => el.kinopoiskId === item.kinopoiskId)})}>
+            <TouchableOpacity onPress={() => navigation.navigate('Места', {navigation: nav, title: films.find((el) => el.kinopoiskId === item.kinopoiskId).nameRu,scheduleItem: item, filmItem: films.find((el) => el.kinopoiskId === item.kinopoiskId)})}>
                 <HStack
                     marginBottom={4}
                     padding={2}
@@ -45,7 +47,8 @@ export default function ScheduleScreen({route, navigation}) {
                     <Text paddingX={3} style={{flexShrink: 1}}>{films.find((el) => el.kinopoiskId === item.kinopoiskId).nameRu}</Text>
                     <VStack ml={"auto"}>
                         <Heading size={"sm"} textAlign={"right"}>{item.time}</Heading>
-                        <Text fontSize={12} mt={"auto"}>{item.room === 0 ? "Малый зал" : "Большой зал"}</Text>
+                        <Text fontSize={12} mt={"auto"} ml={"auto"}>{item.price + "₽"}</Text>
+                        <Text fontSize={12}>{item.room === 0 ? "Малый зал" : "Большой зал"}</Text>
                     </VStack>
 
                 </HStack>
@@ -124,7 +127,7 @@ export default function ScheduleScreen({route, navigation}) {
                     </ScrollView>
                 );
             }}/>
-            <Stack.Screen name="Места" options={{headerShown: false}} component={SeatsPicker}/>
+            <Stack.Screen name="Места" options={({ route }) => ({ title: route.params.title })} component={SeatsPicker}/>
         </Stack.Navigator>
     );
 }

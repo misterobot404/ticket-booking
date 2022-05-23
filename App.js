@@ -1,7 +1,7 @@
 import React from "react";
 import {Image, NativeBaseProvider} from "native-base";
 import {connect, Provider} from 'react-redux'
-import {createStore} from "redux"
+import {bindActionCreators, createStore} from "redux"
 import Store from './store'
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import {NavigationContainer} from "@react-navigation/native";
@@ -9,6 +9,7 @@ import PosterScreen from "./screens/PosterScreen";
 import {FontAwesome} from "@expo/vector-icons";
 import ScheduleScreen from "./screens/ScheduleScreen";
 import MyTicketsScreen from "./screens/MyTicketsScreen";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const store = createStore(Store)
 
@@ -23,6 +24,11 @@ export default function App() {
 }
 
 class Navigation extends React.Component {
+    async componentDidMount() {
+        let tickets = await AsyncStorage.getItem('@tickets');
+        this.props.setTicketsList(tickets !== null ? JSON.parse(tickets) : [])
+    }
+
     render() {
         const Tab = createBottomTabNavigator();
 
@@ -69,7 +75,18 @@ function mapStateToProps(state) {
     }
 }
 
-const NavigationCont = connect(mapStateToProps)(Navigation);
+const setTicketsList = (payload) => {
+    return {
+        type: 'SET_TICKETS_LIST',
+        payload
+    }
+}
+
+function matchDispatchToProps(dispatch) {
+    return bindActionCreators({setTicketsList: setTicketsList}, dispatch)
+}
+
+const NavigationCont = connect(mapStateToProps, matchDispatchToProps)(Navigation);
 
 
 
