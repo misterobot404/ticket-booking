@@ -2,7 +2,7 @@ import {combineReducers} from 'redux'
 import {DefaultTheme, DarkTheme} from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const tickets = (state = [], action) => {
+const tickets = (state = [],  ) => {
     switch (action.type) {
         case 'SET_TICKETS_LIST':
             return action.payload;
